@@ -8,9 +8,22 @@ export default function ProductCard({ p, refresh }) {
     refresh && refresh();
   };
 
-  const addWishlist = async () => {
-    await API.post("/wishlist/add", { userId, productId: p._id });
-  };
+ const addToWishlist = async (id) => {
+  const userId = localStorage.getItem("userId");
+
+  await fetch("http://51.21.250.111:5000/api/wishlist/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userId,
+      productId: id
+    })
+  });
+
+  alert("Added to wishlist");
+};
 
   return (
     <div className="card">
@@ -22,7 +35,7 @@ export default function ProductCard({ p, refresh }) {
 
       <div className="card-btns">
         <button onClick={addCart}>Cart</button>
-        <button onClick={addWishlist}>❤️</button>
+        <button onClick={() => addToWishlist(p._id)}>❤️</button>
       </div>
     </div>
   );
