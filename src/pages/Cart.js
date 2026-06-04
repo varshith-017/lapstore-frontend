@@ -8,11 +8,16 @@ export default function Cart() {
 
   const userId = localStorage.getItem("userId");
 
-  // FETCH CART
+  // LOAD CART
   const loadCart = () => {
+    if (!userId) return;
+
     API.get(`/cart/${userId}`)
-      .then(res => setCart(res.data || { items: [] }))
-      .catch(() => setCart({ items: [] }));
+      .then((res) => setCart(res.data || { items: [] }))
+      .catch((err) => {
+        console.log(err);
+        setCart({ items: [] });
+      });
   };
 
   useEffect(() => {
@@ -21,15 +26,40 @@ export default function Cart() {
 
   // REMOVE ITEM
   const removeItem = async (productId) => {
-    await API.post("/cart/remove", { userId, productId });
-    loadCart();
+    try {
+      await API.post("/cart/remove", {
+        userId,
+        productId
+      });
+
+      loadCart();
+    } catch (err) {
+      console.log(err);
+      alert("Failed to remove item");
+    }
+  };
+
+  // PLACE ORDER
+  const placeOrder = async () => {
+    try {
+      await API.post("/orders/place", {
+        userId
+      });
+
+      alert("Order placed successfully ✅");
+
+      loadCart();
+    } catch (err) {
+      console.log(err);
+      alert("Failed to place order");
+    }
   };
 
   const items = cart?.items || [];
 
-  // TOTAL PRICE
   const total = items.reduce(
-    (sum, item) => sum + item.productId.price * item.quantity,
+    (sum, item) =>
+      sum + item.productId.price * item.quantity,
     0
   );
 
@@ -44,9 +74,16 @@ export default function Cart() {
           <h3>Cart is empty 😢</h3>
         ) : (
           <>
-            {items.map(item => (
-              <div className="cart-card" key={item._id}>
-                <img src={item.productId.image} alt="" />
+            {items.map((item) => (
+              <div
+                className="cart-card"
+                key={item._id}
+              >
+                <img
+                  src={item.productId.image}
+                  alt={item.productId.name}
+                  width="120"
+                />
 
                 <div>
                   <h3>{item.productId.name}</h3>
@@ -56,7 +93,9 @@ export default function Cart() {
 
                 <button
                   className="remove-btn"
-                  onClick={() => removeItem(item.productId._id)}
+                  onClick={() =>
+                    removeItem(item.productId._id)
+                  }
                 >
                   Remove
                 </button>
@@ -64,6 +103,13 @@ export default function Cart() {
             ))}
 
             <h2>Total: ₹{total}</h2>
+
+            <button
+              className="btn-primary"
+              onClick={placeOrder}
+            >
+              Place Order
+            </button>
           </>
         )}
       </div>
