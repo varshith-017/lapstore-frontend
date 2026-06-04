@@ -5,6 +5,7 @@ import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
 import ProductDetails from "./pages/ProductDetails";
+import Search from "./pages/Search";
 
 function PrivateRoute({ children }) {
   const userId = localStorage.getItem("userId");
@@ -56,7 +57,16 @@ export default function App() {
             </PrivateRoute>
           }
         />
+        <Route
+  path="/search/:key"
+  element={
+    <PrivateRoute>
+      <Search />
+    </PrivateRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
+      
   );
 }
