@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import API from "../api";
+import Navbar from "../components/Navbar";
 
 export default function Wishlist() {
   const [items, setItems] = useState([]);
@@ -6,25 +8,33 @@ export default function Wishlist() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
 
-    fetch(`http://YOUR_EC2_IP:5000/api/wishlist/${userId}`)
-      .then(res => res.json())
-      .then(data => setItems(data));
+    API.get(`/wishlist/${userId}`)
+      .then((res) => setItems(res.data || []))
+      .catch((err) => console.log(err));
   }, []);
 
   return (
-    <div>
-      <h2>My Wishlist</h2>
+    <>
+      <Navbar />
 
-      {items.length === 0 ? (
-        <p>No items</p>
-      ) : (
-        items.map(item => (
-          <div key={item._id}>
-            <h3>{item.name}</h3>
-            <p>₹{item.price}</p>
-          </div>
-        ))
-      )}
-    </div>
+      <div className="wishlist-container">
+        <h2>My Wishlist</h2>
+
+        {items.length === 0 ? (
+          <p>No items in wishlist</p>
+        ) : (
+          items.map((item) => (
+            <div key={item._id} className="wishlist-card">
+              <img src={item.image} alt={item.name} />
+
+              <div>
+                <h3>{item.name}</h3>
+                <p>₹{item.price}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </>
   );
 }
